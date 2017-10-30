@@ -1,0 +1,185 @@
+# 4. More Shell Concepts 
+
+
+# Parameter expansion
+
+v='hello'
+
+# Notice the difference between single and double quotes. One allows
+# shell variable expansion, the other does not.
+echo "${v} there"
+echo '${v} there'
+# Backslash can be used to "escape" a special character to stop the
+# shell from interpreting it as special
+echo "\${v} there"
+# Print the length of a variable
+echo ${#v}
+# Extract a substring
+echo ${v:0:3}
+# Substrings are interpreted as "maths", so can calculate values
+echo ${v:2:${#v}-3}
+
+# A more useful example
+v='temp_salt_jun.grb.txt'
+
+# Remove .txt suffix
+echo ${v%.txt}
+
+# As above, but with using substitution with an empty string
+echo ${v/.txt/}
+
+# More useful substitution when converting from grib to netcdf
+echo ${v/.grb.txt/.nc}
+
+# Command substitution
+ls -l $(which ls)
+
+
+# Subshells
+
+# Make some temporary directories
+mkdir {00..10}
+# Descend into each directory in a subshell, and make a file
+for d in {00..10}; do (cd $d && touch tempfile) done
+ls -l ??
+# Remove all the files in the directories and then remove the
+# directories
+rm {00..10}/*
+rmdir {00..10}
+# Could have used rm -r {00..10} but BE CAREFUL WITH RECURSIVE FLAG
+# Good idea to use ls to list the file match/glob you want to do an
+# operation on, then use history to pull back that command and change
+# ls to the dangerous operation
+
+
+# Aliases
+
+# make an alias
+alias ls='ls --color'
+# list aliases
+alias
+
+# Put them in your .bashrc file to make them permanent
+echo "alias ls='ls --color'" >> ~/.bashrc
+
+# Similar to shell builtins above, the which command will give 
+# misleading information about aliases:
+which ls
+type ls
+
+
+# Output redirection
+
+# Only capture standard out
+set +e
+ls MM* *.* > log
+# Put standard error and standard out into the same file ...
+ls MM* *.* &> log
+# ... separate files
+ls MM* *.* 1> log.out 2> log.err 
+set -e
+
+# Running shell scripts
+
+# Make a silly shell program
+echo "echo Running myprog" > myprog
+
+# If you try to run this program you will get a permission
+# denied error. 
+set +e
+myprog
+set -e
+
+# You can instead explicitly tell bash to create a new shell to
+# run the script
+bash myprog
+
+# .. or use the current shell (. is the same as bash command source)
+source myprog
+. myprog
+
+# In the first example the shell found the file but it does not 
+# have execute permission. Change the permissions and try again
+chmod a+x myprog
+myprog 
+./myprog
+
+# Often a shell (or python, perl) program will have a "shebang" or 
+# "hashbang" in the first line. This tells the shell what program 
+# to use to run it
+rm myprog
+echo '#!'$(which python) > myprog
+echo 'print("This is python")' >> myprog
+chmod a+x myprog
+./myprog
+cat myprog
+
+
+# More looping
+
+# Three ways to accomplish the same thing, loop through from 1 to 10
+for i in $(seq 1 10); do echo -n $i; done
+for ((i=1;i<=10;i++)); do echo $i; done
+for i in {1..10}; do echo $i; done
+
+# The last method has a nice side effect of zero padding numbers
+# automatically, which can be nice when creating filenames that
+# list nicely automatically
+for i in {001..10}; do echo $i; done
+
+# Compare ...
+for i in {1..10}; do touch tmp/file_$i.txt; done
+ls -l tmp
+rm tmp/*
+# .. and contrast
+for i in {001..10}; do touch tmp/file_$i.txt; done
+ls -l tmp
+
+# The bash variable substitution is now very powerful when combined
+# with loops. 
+
+# Systematically change the name of files (echo first to check what
+# the command will do, then run the command without echo
+for file in tmp/file_???.txt; do echo mv $file ${file/file/output}; done
+for file in tmp/file_???.txt; do mv $file ${file/file/output}; done
+
+# Systematically change file extension. Especially useful when using a 
+# program to transform a file from one format to another, e.g. using 
+# convert from ImageMagick to change from one image format to another
+
+# Use wget to download a picture of a phytoplankton bloom in Shark Bay.
+# Note the -O option is used to specify the name of the downloaded file
+wget https://goo.gl/11DSGh -O Shark_Bay.jpg
+
+# Make 10 copies of the Shark Bay image file
+for i in {1..10}; do cp Shark_Bay.jpg tmp/shark_bay_$i.jpg; done
+
+# Loop through the copies and convert each to a TIFF file, using 
+# pattern substitution to match a '.jpg' extension and replace with 
+# '.tiff'
+for file in tmp/shark_bay_*; do convert $file ${file/%.jpg/.tiff}; done
+
+# Conditional execution
+
+# As mentioned in the software carpentry material, two commands
+# can be put on the same line, separated by a semicolon and one
+# command will execute after the other but there is no check the
+# first command completed successfully
+sleep 5; ls
+
+# Execute subsequent commands based on success or failure of 
+# previous commands. 
+
+# && stands for "and" which means if the previous command 
+# returns an error code the subsequent commands will not run
+sleep 5 && ls
+# || stands for "or" and has the opposite meaning to &&
+sleep 5 || ls
+
+# Important if there is a dependency on the first command 
+# running before subsequent commands
+set +e
+mkdir /lala ; ls /lala
+mkdir /lala && ls /lala
+set -e
+

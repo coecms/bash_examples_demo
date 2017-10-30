@@ -1,0 +1,56 @@
+# 5. Job Control 
+
+# Running processes in the background
+
+# Start a sleep and interrupt it
+sleep 30
+# Ctrl-C
+
+# Start a sleep 
+sleep 50
+# Suspend current job
+# Ctrl-Z
+# Background that job
+set +e
+bg
+# Bring it back into the foreground
+fg
+# Ctrl-C
+
+# Make new sleep job and put in the background
+sleep 120 &
+# Bring sleep job back to foreground
+fg 1
+# Ctrl-C
+set -e
+
+# Processes
+
+# List running processes in current shell
+ps 
+
+# List all processes belonging to you running on this machine
+ps -u
+ps -uf
+
+# List all processes
+ps -a
+ps -af
+
+# Start a sleep process in the background, grab it's process id
+# (last PID is stored in $!), then kill it and confirm it is dead
+sleep 600 &
+pid=$!
+echo "Sleep process pid = $pid"
+ps 
+kill $!
+ps
+
+# Kill sends signals to processes, which they can choose to ignore.
+# Can specify the signal to send, and "kill -9" will kill just about
+# anything, but may prevent graceful cleanup
+
+# tmux is quite advanced, but beyond the scope of this lesson except
+# to say it is useful if you need to resume your work between different
+# physical locations
+

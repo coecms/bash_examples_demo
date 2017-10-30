@@ -1,0 +1,15 @@
+# Setup 
+
+# Use wget to download the test directory structure from the software
+# carpentry course, unzip and cd into the directory
+wget https://swcarpentry.github.io/shell-novice/data/shell-novice-data.zip
+unzip shell-novice-data.zip
+cd data-shell
+
+# Command keys
+
+# Use up and down arrows to scroll through your command history.
+# Left and right arrows to traverse the command line.
+# Shell command keys are also very useful, particularly when editing
+# long command lines: try Ctrl-A, Ctrl-K, Ctrl-U and Ctrl-E
+

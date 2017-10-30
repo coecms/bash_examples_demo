@@ -1,0 +1,179 @@
+# 6. Other useful commands
+
+# Columnar data
+
+# Already had cut command in Unix Shell lesson, reminder: cut selects
+# columns from columnar data, e.g. csv or space separated
+
+# Cut the second column, don't print lines that don't contain delimeter
+# which is tab by default
+cut -s -f 2 data/morse.txt
+
+# Cut the first and fourth columns from a csv file
+cut -d, -f1,4 data/planets.txt 
+
+# Get your last 10 commands from history, and get rid of all the stuff
+# at the beginning, which means the file is valid bash which you can
+# edit or just run as-is
+history | head | cut -f6- -d' ' > commands.txt
+cat commands.txt
+# This does the same thing but cuts on characters not fields
+history | head | cut -c28- > commands.txt
+cat commands.txt
+
+# Paste is analogous to cut, but joins columnar data. Add a number 
+# column to the planets data. First determine the range of numbers 
+# then use paste, with '-' being a placeholder for piped input
+seq 1 $(cat data/planets.txt | wc -l) | paste -d, - data/planets.txt
+
+# Batch text processing
+
+# sed is a stream editor, which essentially means it can edit streams
+# of characters that are piped into it, or read lines from a file and
+# process them one at a time. It can make the same edit to thousands of
+# files trivially
+
+# Make 10000 files, and substitute the "rope" for "string"
+for i in {0001..10000}; do echo 'this is a string' > tmp/file_${i}; done
+time sed -i 's/string/rope/' tmp/*
+grep string tmp/*
+
+# Also note, the size of the directory tmp has grown because it now 
+# contains many more files:
+ls -ld tmp
+
+# However, if we delete those files, the directory does not shrink in
+# size
+rm tmp/*
+ls -ld tmp
+
+# More file finding
+
+# The find command was covered in the Unix Shell lesson, but there are
+# more options that make it a very useful utility
+
+# Find all files larger than 10kB under the current directory
+find . -size +10k      
+
+# Note that it included the tmp directory, as it meets the size
+# criteria. Specify to only search for files (can specify other types)
+find . -size +10k -type file
+
+# The + symbol is necessary to make the search "greater than", without
+# it find will match files that are EXACTLY 10K in size. Using a 
+# - sign will find all files less than 10K in size
+find . -size -10k -type file
+
+# Make some temporary files (note don't actually need a loop)
+touch tmp/file_{A..E}_{0001..10}
+
+# In this case could just do rm/* but as an example
+find tmp -size 0 -delete
+
+# Remake our temporary files
+touch tmp/file_{A..E}_{0001..10}
+
+# First search fails, so use case insensitive match
+find tmp -name "*_a_*"
+find tmp -iname "*_a_*"
+
+# Combine find and grep to prune your list of matches
+find tmp -iname "file_?_????" | grep '_C_'
+
+# can also exclude matches with grep
+find tmp -iname "file_?_????" | grep -v '_C_'
+
+# Use tree command to get a text representation of directory structure.
+tree writing
+# Not useful for directories with large numbers of files, but can use
+# the -d option to only show directories
+tree -d
+
+# Do useful things with find
+
+# To do more than just delete
+find tmp -iname "*_a_*" -ls
+
+# Find all files less than 100K in size, grep for "nine" and then
+# print matching files (note semicolon must be escaped)
+find . -size -100k -type f -exec grep -qi nine {} \; -ls
+
+# Find all files larger than 10KB and find total size. In this case
+# uses '+' which joins all the found files with whitespace and 
+# executes the command once. Because '+' is not a special character
+# for bash, it does not need to be escaped (backslash in front)
+find . -size +10k -type f -exec du -shc {} +
+
+# Here we find all the pdb files (these are molecular structures)
+# and grep for any that have chlorine atoms. Note the requirement
+# for an explicit -print statement (this is on by default but gets
+# turned off with exec)
+find . -iname "*.pdb" -exec grep -qi " cl " {} \; -print  
+
+# Can find by group
+find . -group hh5 | wc -l
+
+# Or by permissions flags: find all files where executable bit set
+# for other
+find . -perm /o=x
+
+# Or both
+find . -perm /o=x -group hh5
+
+# Multiple conditions imply "and" relationship, but can specify "or"
+find . -perm /o=x -or -group hh5
+
+# Find any file newer than 2*24 hours
+find . -mtime -2
+
+# Or older than 2*24 hours
+find -mtime +2
+# As above, but showing use of not
+find -not -mtime -2
+
+# Synchronise files
+
+# rysnc is a file copying tool. It can compare the contents of the local
+# directory and remote directory and only copy files that are different.
+# This is very useful for many uses, but a pertinent example would be
+# copying experimental data from /short to /gdata or a remote location
+mkdir -p /tmp/$USER
+rsync -av data /tmp/$USER
+
+# Run again, nothing should happen
+rsync -av data /tmp/$USER
+
+# Update the modification time on some files and run again, should copy 
+# them
+touch data/*
+rsync -av data /tmp/$USER
+
+# Can use a "dry-run" mode to check what will happen. This is useful as 
+# rsync is very sensitive to placement of a trailing slash. rsync takes
+# this to mean you wish to synchronise the content of a directory, not 
+# the directory itself
+rsync -n -av data/ /tmp/$USER
+
+# This would recopy all the data, but without the data directory
+# in front, as demonstrated in the dry run output, as the -v flag
+# means all files to be copied are printed on the screen.
+
+# Start again, this time we will exclude all files ending in ".pdb"
+rm -f /tmp/$USER/data
+rsync --exclude "*.pdb" -av data /tmp/$USER
+
+# Run the same command as initially, without the exclude, but with
+# dry run, and you can see none of the pdb files were copied
+rsync -n -av data /tmp/$USER
+
+# When using rsync on raijin it is a good idea to use the option 
+# --safe-links which will make sure no unsafe symbolic links are copied, 
+# and --no-g  which will not preserve the group of copied files. Often 
+# it can be important to allow the group to change to match the group 
+# ownership of the project code that owns the space being copied to
+
+# rsync can also be used to copy to and from remote locations, like so
+#
+# rsync --exclude "*.pdb" -av data user@host:/path/to/directory
+
+

@@ -1,0 +1,189 @@
+# 3. System Interaction 
+
+# Username
+whoami
+
+# Groups, particularly important on raijin where group
+# membership is required to access compute and storage
+# resources
+groups
+
+# Find another user (can be a name or their username)
+finger aidan
+
+# Time command execution. sys+user is the total amount of CPU time, 
+# and real is the elapsed (wall clock) time.
+time sleep 5
+time find . | wc -l
+# Second iteration should be faster due to filesystem caching
+time find . | wc -l
+
+# Find out which version of a command is being used when you
+# execute that command in your shell
+time ls
+which time
+$(which time) ls
+
+# HANG ON! which time said I was using one time command, but when
+# I invoke it directly it doesn't give the same output. In this case
+# time is not actually finding that command, see:
+type time
+
+# time is a shell builtin, and the which command gave misleading 
+# information. The shell builtin time just provides information about
+# timing. sys+user is the total amount of CPU time, and real is the
+# elapsed (wall clock) time. The /usr/bin/time command will also
+# provide memory usage statistics.
+
+# Find the type of a file
+file pizza.cfg 
+file solar.pdf
+
+
+# How much space are my files using?
+
+# No command line argument, uses . by default
+du -shc
+
+# Can specify a directory/file
+du -shc data
+
+# Report each one separately if they are specified separately
+du -shc data/*
+# To see what the command is doing, put echo in front
+echo du -shc data/*
+
+# Similar information using ls
+ls -lSrh data/*
+
+# Different if there are directories being listed
+du -shc writing/*
+ls -lSrh writing/*
+
+# Note in the case of ls it reports the size of the directory 
+# structure, which is related to the number of files it contains
+# not the size of the files inside it
+
+# Sort by size when using du (using -h option to sort the human 
+# readable sizes properly
+du -shc data/* | sort -h
+
+# How many files do I have in each directory (useful to know when
+# your inode quota is exhausted on NCI systems)
+for d in *; do echo -n $(find $d | wc -l); echo " $d"; done > log
+sort -h log
+
+# In an unfamiliar system it can sometimes help to know what
+# filesystems are available
+df -h
+
+
+# Permissions
+
+# Take away group read permissions
+ls -l pizza.cfg
+chmod g-r pizza.cfg
+ls -l pizza.cfg
+
+# Do the same recursively for a directory
+mkdir tmp
+chmod -R g-r tmp
+ls -l tmp
+
+# A directory must be executable to be able to cd into it
+chmod a-x tmp
+set +e
+cd tmp
+set -e
+
+# Get some strange behaviour when you try to list a directory
+# for which you do not have execute permissions
+ls -l tmp
+
+# Examine the permissions of a directory without listing contents
+ls -ld tmp
+chmod a+x tmp
+ls -ld tmp
+
+# Change the group of a file/directory
+touch tmp/file1 tmp/file2 tmp/file3
+chgrp hh5 tmp/file1
+ls -l tmp
+# Recursively: sets same permissions on all files and directories 
+# contained under named directory
+chgrp -R hh5 tmp
+ls -l tmp
+
+# What group would be assigned to a new file in this directory 
+touch tmp/newfile
+ls -l tmp/newfile
+# Can make it so any new files inherit the group of the directory
+# (this is called setgid)
+chmod g+s tmp
+touch tmp/evennewerfile
+ls -l tmp/evennewerfile
+
+# Very useful for modellers who might switch the group they submit
+# their model runs with on PBS, but wish to always save them as one
+# group that maybe has a large disk quota
+
+# If you wish to give read and access permissions to a directory
+# tree you must give read permissions on ordinary files, but read
+# and execute permissions for any directories. If you simply did
+# this:
+# chmod -R o+rx directory_name
+# it would make everything executable for others. Instead we use 
+# the special X flag, which will only make files/directories 
+# executable if the executable flag is already set for some other 
+# user. So the correct way is
+chmod -R o+rX tmp
+
+
+# Change who owns a file (chown). Can't be done on raijin for security
+# reasons. Be careful you do not create a file you cannot delete. 
+# Contact help@nci if you need to change file ownership. 
+
+# Access Control Lists (ACLs) are a fine-grained permissions scheme
+
+# To see ACLs on a file
+getfacl log
+
+# Set read access to all members of hh5
+setfacl -m g:hh5:r log
+getfacl log
+
+# Can use ACLs to allow collaboration between users in a shared 
+# directory 
+mkdir shared
+# Give collaborator (you123) write permissions to the directory
+set +e
+setfacl -R -m u:you123:rwX shared      
+# Make sure collaborator can read new files
+setfacl -R -d -m u:you123:rwX shared   
+# Make sure owner (me1234) can read new files created by collaborator
+setfacl -R -d -m u:me1234:rwX shared   
+set -e
+
+# Shortcuts
+
+# Can make a link (shortcut) to a file or directory
+
+# Link can be symbolic
+ln -s north-pacific-gyre/2012-07-03/goostats statslink
+ls -l
+rm statslink
+
+# Or "hard". Note the difference between statslink in the
+# two directory listings
+ln north-pacific-gyre/2012-07-03/goostats statslink
+ls -l
+rm statslink
+
+
+# HPC Software
+
+# Most software is accessed using the module command
+module load pbs
+module show pbs
+module unload pbs
+
