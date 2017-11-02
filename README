@@ -1,5 +1,5 @@
 for f in ??_bash_examples.txt
 do
   echo "./mkdemo.sh $f > ${f/%.txt/demo.sh}"
-  ./mkdemo.sh $f > ${f/%.txt/demo.sh}
+  ./mkdemo.sh $f > ${f/%.txt/.demo.sh}
 done

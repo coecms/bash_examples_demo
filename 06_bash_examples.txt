@@ -15,7 +15,7 @@ cut -d, -f1,4 data/planets.txt
 # Get your last 10 commands from history, and get rid of all the stuff
 # at the beginning, which means the file is valid bash which you can
 # edit or just run as-is
-history | head | cut -f6- -d' ' > commands.txt
+history | head | cut -f6- -d" " > commands.txt
 cat commands.txt
 # This does the same thing but cuts on characters not fields
 history | head | cut -c28- > commands.txt
@@ -35,7 +35,7 @@ seq 1 $(cat data/planets.txt | wc -l) | paste -d, - data/planets.txt
 
 # Make 10000 files, and substitute the "rope" for "string"
 for i in {0001..10000}; do echo 'this is a string' > tmp/file_${i}; done
-time sed -i 's/string/rope/' tmp/*
+time sed -i "s/string/rope/" tmp/*
 grep string tmp/*
 
 # Also note, the size of the directory tmp has grown because it now 
@@ -78,10 +78,10 @@ find tmp -name "*_a_*"
 find tmp -iname "*_a_*"
 
 # Combine find and grep to prune your list of matches
-find tmp -iname "file_?_????" | grep '_C_'
+find tmp -iname "file_?_????" | grep "_C_"
 
 # can also exclude matches with grep
-find tmp -iname "file_?_????" | grep -v '_C_'
+find tmp -iname "file_?_????" | grep -v "_C_"
 
 # Use tree command to get a text representation of directory structure.
 tree writing

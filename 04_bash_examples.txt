@@ -1,9 +1,10 @@
+
 # 4. More Shell Concepts 
 
 
 # Parameter expansion
 
-v='hello'
+v="hello"
 
 # Notice the difference between single and double quotes. One allows
 # shell variable expansion, the other does not.
@@ -20,7 +21,7 @@ echo ${v:0:3}
 echo ${v:2:${#v}-3}
 
 # A more useful example
-v='temp_salt_jun.grb.txt'
+v="temp_salt_jun.grb.txt"
 
 # Remove .txt suffix
 echo ${v%.txt}
@@ -55,7 +56,7 @@ rmdir {00..10}
 # Aliases
 
 # make an alias
-alias ls='ls --color'
+alias ls="ls --color"
 # list aliases
 alias
 
@@ -108,8 +109,8 @@ myprog
 # "hashbang" in the first line. This tells the shell what program 
 # to use to run it
 rm myprog
-echo '#!'$(which python) > myprog
-echo 'print("This is python")' >> myprog
+echo "#!"$(which python) > myprog
+echo "print(\"This is python\")" >> myprog
 chmod a+x myprog
 ./myprog
 cat myprog
@@ -182,4 +183,5 @@ set +e
 mkdir /lala ; ls /lala
 mkdir /lala && ls /lala
 set -e
+
 
