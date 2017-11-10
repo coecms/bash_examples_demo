@@ -10,6 +10,7 @@ HISTTIMEFORMAT="%d-%m-%y %T "
 DEMO_PROMPT="[06 \W]$ "
 
 cd data-shell >& /dev/null
+rm -rf /tmp/$USER
 
 clear
 
