@@ -1,4 +1,4 @@
-. /home/502/aph502/code/bash/demo-magic/demo-magic.sh
+. ./demo-magic/demo-magic.sh
 DEMO_PROMPT="[00 \W]$ "
 clear
 pe 'wget https://swcarpentry.github.io/shell-novice/data/shell-novice-data.zip'

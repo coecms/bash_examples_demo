@@ -1,18 +1,4 @@
-_int() { 
-  echo "Caught SIGINT signal!" 
-  kill -TERM "$child" 2>/dev/null
-}
-
-trap _int SIGINT
-
-_term() { 
-  echo "Caught SIGINT signal!" 
-  kill -TERM "$child" 2>/dev/null
-}
-
-trap _term SIGINT
-
-. /home/502/aph502/code/bash/demo-magic/demo-magic.sh
+. ./demo-magic/demo-magic.sh
 DEMO_PROMPT="[05 \W]$ "
 cd data-shell || echo -n ''
 p 'sleep 30'

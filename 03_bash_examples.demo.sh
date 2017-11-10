@@ -1,4 +1,4 @@
-. /home/502/aph502/code/bash/demo-magic/demo-magic.sh
+. ./demo-magic/demo-magic.sh
 DEMO_PROMPT="[03 \W]$ "
 cd data-shell &> /dev/null
 clear

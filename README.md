@@ -8,3 +8,7 @@ do
   ./mkdemo.sh $f > ${f/%.txt/.demo.sh}
 done
 ```
+
+To run each demo.sh
+
+> bash demo.sh

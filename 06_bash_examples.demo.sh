@@ -5,7 +5,7 @@
 
 HISTTIMEFORMAT="%d-%m-%y %T "
 
-. /home/502/aph502/code/bash/demo-magic/demo-magic.sh
+. ./demo-magic/demo-magic.sh
 
 DEMO_PROMPT="[06 \W]$ "
 
